@@ -1,12 +1,17 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { createBottomTabNavigator } from 'react-navigation';
+import { createStackNavigator, createBottomTabNavigator } from 'react-navigation';
+import { f, auth, database, storage } from './config/config.js';
+
+
 
 import feed from './app/screens/feed.js';
 import profile from './app/screens/profile.js';
 import upload from './app/screens/upload.js';
+import userProfile from './app/screens/userProfile.js';
+import comments from './app/screens/comments.js';
 
-const MainStack = createBottomTabNavigator(
+const TabStack = createBottomTabNavigator(
   {
     Feed: {screen: feed},
     Upload: {screen: upload},
@@ -14,7 +19,35 @@ const MainStack = createBottomTabNavigator(
   }
 )
 
+const MainStack = createStackNavigator(
+  {
+    Home: { screen: TabStack },
+    User: { screen: userProfile },
+    Comments: { screen: comments}
+  },
+  {
+    initialRouteName: 'Home',
+    mode: 'modal',
+    headerMode: 'none'
+  }
+)
+
 export default class App extends React.Component {
+
+  //calls the DB, check if credentials are correct
+  login = async() => {
+    try{
+      let user = await auth.signInWithEmailAndPassword('test@user.com', 'password');
+    }catch(error){
+      console.log(error);
+    }
+  }
+
+  constructor(props){
+    super(props);
+    this.login();
+  }
+
   render() {
     return (
       <MainStack />
