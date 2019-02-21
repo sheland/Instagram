@@ -59,6 +59,44 @@ class upload extends React.Component{
     });
 
     console.log(result);
+
+    if(!result.cancelled){
+      console.log('upload pic');
+      this.uploadImage(result.uri)
+
+    }else{
+      console.log('cancel');
+    }
+  }
+
+  //check extension type of image
+  //re-> looks for last "." and pass the word after the '.' ex: "filename.png"
+  //ext -> grabs 2nd part of array
+
+  //convert image.uri to blob to upload to firebase storage
+  //ref: reference to firebase storage
+
+  //var snapshot-> make call to firebase storage to upload image
+    //state_changed-> listen to upload
+  uploadImage = async (uri) => {
+    var that = this;
+    var userid = f.auth().currentUser.uid;
+    var imageId = this.state.imageId;
+
+    var re = /(?:\.([^.]+))?$/;
+    var ext = re.exec(uri)[1];
+    this.setState({currentFileType: ext});
+
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    var FilePath = imageId+'.'+that.state.currentFileType;
+
+    const ref = storage.ref('user/'+userid+'/img').child(FilePath);
+
+    var snapshot = ref.put(blob).on('state_changed', snapshot => {
+      console.log('Progress!', snapshot.bytesTransferred, snapshot.totalBytes)
+    });
+
   }
 
   componentDidMount = () => {
